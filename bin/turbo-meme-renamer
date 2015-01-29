@@ -1,0 +1,5 @@
+#!/usr/bin/env nodejs
+var meme = require('../index.js'),
+    files = process.argv.slice(2);
+
+meme(files);
