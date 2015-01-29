@@ -1,3 +1,3 @@
-function one(firstarg, secondArg){
-    return firstarg + secondarg;
-}
+views('wtf', function(){
+    return this.wtf;
+});
