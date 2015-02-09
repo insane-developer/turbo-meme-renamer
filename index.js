@@ -64,7 +64,7 @@ function transform(str){
     
     /* если что-то заменилось в предыдущем пункте, добавим аргумент substitute */
     if(str !== str2){
-        str = str2.replace(/(views\((['"])[^'"]+\2\s*,\s*function)\(\)/, function(match, group){
+        str = str2.replace(/(views\((['"])[^'"]+\2\s*,\s*function\s*)\(\)/, function(match, group){
             return group + '(' + colorize(substitute) + ')';
         });
     }
