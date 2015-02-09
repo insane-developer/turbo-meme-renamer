@@ -1,13 +1,19 @@
 var fs = require('fs'),
     path = require('path'),
-    uglify = require('uglify-js');
+    uglify = require('uglify-js'),
+    options = {};
 
-module.exports = function(files){
-    if(!files && files.length){
-        console.log('No files');
-        return;
+module.exports = {
+    process: function(files){
+        if(!files && files.length){
+            console.log('No files');
+            return;
+        }
+        files.forEach(readFile);
+    },
+    configure: function(_options){
+        options = _options;
     }
-    files.forEach(readFile);
 };
 
 function readFile(file){
@@ -16,49 +22,99 @@ function readFile(file){
         if(err){
             throw err;
         }
-        doTheTrick(resolved, data);
+        var comments = [], tokens = [],
+            ast = uglify.parse(data),
+            matches = doTheTrick(resolved, ast);
+
+        var compiled = compile(data, matches, transform);
+        if(!options.write){
+            console.log(compiled);
+        }else{
+            fs.writeFile(resolved, compiled, 'utf-8', function(err){
+                if(err){
+                    throw err;
+                }
+                console.log('Записан:', file);
+            });
+        }
     });
 }
+function colorize(str){
+    if(options.color && !options.write){
+        return '\033[32m' + str + '\033[0m';
+    }else{
+        return str;
+    }
+}
+function transform(str){
+    var substitute = 'dataInArgument';
 
-function doTheTrick(resolved, data){
-    var ast = uglify.parse(data),
-        pattern = {
-            start: {
-                value: 'views',
-                type: 'name'
-            },
-            body: {
-                args: [
-                    {
-                        start: {
-                            type: 'string'
-                        }
-                    },
-                    {
-                        start: {
-                            value: 'function',
-                            type: 'keyword'
-                        },
-                        argnames: []
-                    }
-                ],
-                expression: {
+    /* найдем все синонимы this и сотрем их */
+    var thisSynonyms = ['this'];
+    str = str.replace(/([^\s=]+)\s*=\s*this\s*([;,])/g, function(match, syn, lineEnd){
+        thisSynonyms.push(syn);
+        if(lineEnd === ';'){
+            return colorize('unused;/* auto: здесь была ссылка на t-h-i-s */');
+        }
+        return '';
+    });
+    /* заменим все this и синонимы на substitute */
+    var re = new RegExp('\\b(?:' + thisSynonyms.join('|') + ')\\b', 'g'),
+        str2 = str.replace(re, colorize(substitute));
+    
+    /* если что-то заменилось в предыдущем пункте, добавим аргумент substitute */
+    if(str !== str2){
+        str = str2.replace(/(views\((['"])[^'"]+\2\s*,\s*function)\(\)/, function(match, group){
+            return group + '(' + colorize(substitute) + ')';
+        });
+    }
+    
+    return str;
+}
+function compile(str, matches, transformMatch){
+    var tokens = [],
+        start = 0;
+    matches.forEach(function(match){
+        var matchStart = match.start.pos;
+        tokens.push(str.slice(start, matchStart));
+        start = match.end.pos + 1;
+        tokens.push(transformMatch(str.slice(matchStart, match.end.pos + 1)));
+    });
+    tokens.push(str.slice(start));
+    return tokens.join('');
+}
+
+function doTheTrick(resolved, ast){
+    var pattern = {
+        start: {
+            value: 'views',
+            type: 'name'
+        },
+        body: {
+            args: [
+                {
                     start: {
-                        type: 'name',
-                        value: 'views'
+                        type: 'string'
+                    }
+                },
+                {
+                    start: {
+                        value: 'function',
+                        type: 'keyword'
                     },
-                    name: 'views'
+                    argnames: []
                 }
+            ],
+            expression: {
+                start: {
+                    type: 'name',
+                    value: 'views'
+                },
+                name: 'views'
             }
-        };
-    
-    var matches = recursiveFind(pattern, ast);
-    
-    console.log('fine', matches.map(function(match){
-        return match.print_to_string({beautify: false});
-    }));
-
-    //console.log(JSON.stringify(ast, null, '  '));
+        }
+    };
+    return recursiveFind(pattern, ast);
 }
 function recursiveFind(what, where){
     var matches = [];
@@ -87,7 +143,7 @@ function deepCompare(what, where){
         if(typeof where !== 'object'){
             return what === where;
         }else{
-            console.log('object-non-object:\n', what,'\n---\n', where);
+            
             return false;
         }
     }else{
@@ -99,11 +155,11 @@ function deepCompare(what, where){
                         return deepCompare(whatItem, where[i]);
                     });
                 }else{
-                    console.log('array-length-not-equal:\n', what,'\n---\n', where);
+                    
                     return false
                 }
             }else{
-                console.log('object-array:\n', what,'\n---\n', where);
+                
                 return false;
             }
         }else{
@@ -117,11 +173,11 @@ function deepCompare(what, where){
             for(var key in what){
                 if(key in where){
                     if(!deepCompare(what[key], where[key])){
-                        console.log('subkeys-not-equal:\n', what,'\n---\n', where);
+                        
                         return false;
                     }
                 }else{
-                    console.log('no-key-in-object:', key, '\n', what,'\n---\n', where);
+                    
                     return false;
                 }
             }

@@ -1,4 +1,5 @@
-function three(firstarg){
+/* global views */
+views('sdgsdfg', function(){
     var self = this;
     function declaration(smth){
         return this + 'a' + smth;
@@ -6,5 +7,12 @@ function three(firstarg){
     var expression = function(el){
         return el + el + this;
     };
-    return declaration.call(self, firstarg) + expression.apply(this, firstarg + firstarg);
-}
+    return declaration.call(self, self.firstarg) + expression.apply(this, this.firstarg + this.firstarg);
+});
+
+views('sdgsdfg', function(){
+    var self = this,
+        smth = 45,
+        inline=this,elses=42, declaration = this;
+    return inline;
+});

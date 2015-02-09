@@ -16,6 +16,8 @@
     "url": "https://github.com/insane-developer/turbo-meme-renamer/issues"
   },
   "dependencies": {
-    "uglify-js": "~2.4.16"
+    "acorn": "^0.11.0",
+    "escodegen": "^1.6.1",
+    "nopt": "^3.0.1"
   }
 }

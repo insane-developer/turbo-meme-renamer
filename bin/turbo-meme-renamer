@@ -1,5 +1,10 @@
 #!/usr/bin/env nodejs
 var meme = require('../index.js'),
-    files = process.argv.slice(2);
+    opts = require('nopt')({
+        write: Boolean,
+        color: Boolean
+    }),
+    files = opts.argv.remain;
 
-meme(files);
+meme.configure(opts);
+meme.process(files);
