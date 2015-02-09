@@ -2,7 +2,8 @@
 var meme = require('../index.js'),
     opts = require('nopt')({
         write: Boolean,
-        color: Boolean
+        color: Boolean,
+        argname: String
     }),
     files = opts.argv.remain;
 

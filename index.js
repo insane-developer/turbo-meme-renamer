@@ -47,7 +47,7 @@ function colorize(str){
     }
 }
 function transform(str){
-    var substitute = 'dataInArgument';
+    var substitute = options.argname || 'dataArgument';
 
     /* найдем все синонимы this и сотрем их */
     var thisSynonyms = ['this'];
