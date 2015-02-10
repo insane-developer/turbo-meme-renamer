@@ -30,7 +30,7 @@ function readFile(file){
             letFunc = 'views.let',
             getFunc = 'views.get';
         if(options.getlet){
-            compiled = compiled.replace(/views(\s*\((['"])[^'"]+\2\s*,\s*([^\s]))/g, function(match, all, quote, arg){
+            compiled = compiled.replace(/views(\s*\((['"])[^'"]+\2\s*,\s*(function|[^\s]))/g, function(match, all, quote, arg){
                 var str = '';
                 if(/function|['"]/.test(arg)){
                     str += colorize(letFunc);
