@@ -13,6 +13,7 @@ views('sdgsdfg', function(){
 views('sdgsdfg', function(){
     var self = this,
         smth = 45,
-        inline=this,elses=42, declaration = this;
-    return views('dfgdgsdf', inline) + views('dfgdgsdf', {e:4});
+        inline=this,
+        elses=42, declaration = this;
+    return views('dfgdgsdf', inline) + views('dfgdgsdf', {e:4}) + declaration + self.views('ololo', this);
 });

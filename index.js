@@ -64,12 +64,20 @@ function transform(str){
 
     /* найдем все синонимы this и сотрем их */
     var thisSynonyms = ['this'];
-    str = str.replace(/([^\s=]+)\s*=\s*this\s*([;,])/g, function(match, syn, lineEnd){
+    str = str.replace(/(var\s*|,\s*\n?\s*)([^\s=]+)\s*=\s*this\s*([;,])(\s*\n\s*)/g, function(match, varvar, syn, lineEnd, newline){
         thisSynonyms.push(syn);
-        if(lineEnd === ';'){
-            return colorize('unused;/* auto: здесь была ссылка на t-h-i-s */');
+        if(/var/.test(varvar)){
+            if(lineEnd === ','){
+                return colorize('var ');
+            }else{
+                return '';
+            }
         }
-        return '';
+        if(lineEnd === ';'){
+            return ';' + newline;
+        }else{
+            return varvar;
+        }
     });
     /* заменим все this и синонимы на substitute */
     var re = new RegExp('\\b(?:' + thisSynonyms.join('|') + ')\\b', 'g'),
