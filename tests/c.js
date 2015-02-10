@@ -14,5 +14,5 @@ views('sdgsdfg', function(){
     var self = this,
         smth = 45,
         inline=this,elses=42, declaration = this;
-    return inline;
+    return views('dfgdgsdf', inline) + views('dfgdgsdf', {e:4});
 });

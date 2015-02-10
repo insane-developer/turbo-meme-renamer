@@ -26,7 +26,20 @@ function readFile(file){
             ast = uglify.parse(data),
             matches = doTheTrick(resolved, ast);
 
-        var compiled = compile(data, matches, transform);
+        var compiled = compile(data, matches, transform),
+            letFunc = 'views.let',
+            getFunc = 'views.get';
+        if(options.getlet){
+            compiled = compiled.replace(/views(\s*\((['"])[^'"]+\2\s*,\s*([^\s]))/g, function(match, all, quote, arg){
+                var str = '';
+                if(/function|['"]/.test(arg)){
+                    str += colorize(letFunc);
+                }else{
+                    str += colorize(getFunc);
+                }
+                return str + all;
+            });
+        }
         if(!options.write){
             console.log(compiled);
         }else{
