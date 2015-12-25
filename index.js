@@ -1,6 +1,8 @@
 var fs = require('fs'),
     path = require('path'),
+    acorn = require('acorn'),
     uglify = require('uglify-js'),
+    walker = require('acorn/util/walk'),
     options = {};
 
 module.exports = {
@@ -41,7 +43,11 @@ function readFile(file){
             });
         }
         if(!options.write){
-            console.log(compiled);
+            if (data !== compiled) {
+                console.log(compiled);
+            } else {
+                console.log('No changes', resolved);
+            }
         }else{
             fs.writeFile(resolved, compiled, 'utf-8', function(err){
                 if(err){
@@ -62,27 +68,25 @@ function colorize(str){
 function transform(str){
     var substitute = options.argname || 'dataArgument';
 
-    /* найдем все синонимы this и сотрем их */
+    /* найдем все синонимы this*/
+
     var thisSynonyms = ['this'];
-    str = str.replace(/(var\s*|,\s*\n?\s*)([^\s=]+)\s*=\s*this\s*([;,])(\s*\n\s*)/g, function(match, varvar, syn, lineEnd, newline){
+    str.replace(/(var\s*|,\s*\n?\s*)([^\s=]+)\s*=\s*this\s*([;,])(\s*\n\s*)/g, function(match, varvar, syn, lineEnd, newline){
         thisSynonyms.push(syn);
-        if(/var/.test(varvar)){
-            if(lineEnd === ','){
-                return colorize('var ');
-            }else{
-                return '';
-            }
-        }
-        if(lineEnd === ';'){
-            return ';' + newline;
-        }else{
-            return varvar;
-        }
     });
-    /* заменим все this и синонимы на substitute */
-    var re = new RegExp('\\b(?:' + thisSynonyms.join('|') + ')\\b', 'g'),
-        str2 = str.replace(re, colorize(substitute));
     
+    /* заменим все this и синонимы на substitute */
+  //  var re = new RegExp('\\b(?:' + thisSynonyms.join('|') + ')\\b', 'g'),
+  //      str2 = str.replace(re, colorize(substitute));
+    var re = new RegExp('(\\b(?:' + thisSynonyms.join('|') + ')\\b\.|\\W)views(\\()', 'g'),
+    /*/(this.|\W)views(\((['"])[^'"]+\3\s*,)/g*/
+        str2 = str.replace(re, function(match, prepend, group) {
+        if (thisSynonyms.indexOf(prepend.substr(0, prepend.length - 1)) !== -1) {
+            return match;
+        }
+        return prepend + colorize(substitute) + group;
+    });
+
     /* если что-то заменилось в предыдущем пункте, добавим аргумент substitute */
     if(str !== str2){
         str = str2.replace(/(views\((['"])[^'"]+\2\s*,\s*function\s*)\(\)/, function(match, group){
@@ -106,6 +110,12 @@ function compile(str, matches, transformMatch){
 }
 
 function doTheTrick(resolved, ast){
+  /*  walker.ancestor(ast, {
+        CallExpression: function(node, stack){
+            console.log('----------------\n', node, '\nstack:\n', JSON.stringify(stack, 'body', '  '));
+        }
+    });
+    */
     var pattern = {
         start: {
             value: 'views',
