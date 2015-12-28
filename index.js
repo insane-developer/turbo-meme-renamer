@@ -7,7 +7,7 @@ var fs = require('fs'),
 
 module.exports = {
     process: function(files){
-        if(!files && files.length){
+        if (!files && files.length){
             console.log('No files');
             return;
         }
@@ -21,47 +21,43 @@ module.exports = {
 function readFile(file){
     var resolved = path.resolve(file);
     fs.readFile(resolved, 'utf-8', function prepareForTheTrick(err, data){
-        if(err){
+        if (err){
             throw err;
         }
         var comments = [], tokens = [],
             ast = uglify.parse(data),
-            matches = doTheTrick(resolved, ast);
+            matches = doTheTrick(resolved, ast),
+            compiled;
 
-        var compiled = compile(data, matches, transform),
-            letFunc = 'views.let',
-            getFunc = 'views.get';
-        if(options.getlet){
-            compiled = compiled.replace(/views(\s*\((['"])[^'"]+\2\s*,\s*(function|[^\s]))/g, function(match, all, quote, arg){
-                var str = '';
-                if(/function|['"]/.test(arg)){
-                    str += colorize(letFunc);
-                }else{
-                    str += colorize(getFunc);
-                }
-                return str + all;
+        compiled = compile(data, matches, transform);
+
+        if (options.warn) {
+            var warnings = findIncorrectInvocations(resolved, ast);
+            warnings.forEach(function(warn) {
+                console.error(resolved + ': Warn at line', warn.start.line, 'pos', warn.start.col);
             });
-        }
-        if(!options.write){
-            if (data !== compiled) {
-                console.log(compiled);
-            } else {
-                console.log('No changes', resolved);
+        } else {
+            if (!options.write){
+                if (data !== compiled) {
+                    console.log(compiled);
+                } else {
+                    console.error('No changes', resolved);
+                }
+            }else {
+                fs.writeFile(resolved, compiled, 'utf-8', function(err){
+                    if (err){
+                        throw err;
+                    }
+                    console.log('Записан:', file);
+                });
             }
-        }else{
-            fs.writeFile(resolved, compiled, 'utf-8', function(err){
-                if(err){
-                    throw err;
-                }
-                console.log('Записан:', file);
-            });
         }
     });
 }
 function colorize(str){
-    if(options.color && !options.write){
+    if (options.color && !options.write){
         return '\033[32m' + str + '\033[0m';
-    }else{
+    }else {
         return str;
     }
 }
@@ -81,14 +77,14 @@ function transform(str){
     var re = new RegExp('(\\b(?:' + thisSynonyms.join('|') + ')\\b\.|\\W)views(\\()', 'g'),
     /*/(this.|\W)views(\((['"])[^'"]+\3\s*,)/g*/
         str2 = str.replace(re, function(match, prepend, group) {
-        if (thisSynonyms.indexOf(prepend.substr(0, prepend.length - 1)) !== -1) {
+            if (thisSynonyms.indexOf(prepend.substr(0, prepend.length - 1)) !== -1) {
             return match;
         }
-        return prepend + colorize(substitute) + group;
-    });
+            return prepend + colorize(substitute) + group;
+        });
 
     /* если что-то заменилось в предыдущем пункте, добавим аргумент substitute */
-    if(str !== str2){
+    if (str !== str2){
         str = str2.replace(/(views\((['"])[^'"]+\2\s*,\s*function\s*)\(\)/, function(match, group){
             return group + '(' + colorize(substitute) + ')';
         });
@@ -132,8 +128,7 @@ function doTheTrick(resolved, ast){
                     start: {
                         value: 'function',
                         type: 'keyword'
-                    },
-                    argnames: []
+                    }
                 }
             ],
             expression: {
@@ -147,20 +142,72 @@ function doTheTrick(resolved, ast){
     };
     return recursiveFind(pattern, ast);
 }
+
+function findIncorrectInvocations(resolved, ast) {
+    var pattern = {
+        start: {
+            value: 'views',
+            type: 'name'
+        },
+        body: {
+            args: [
+                {
+                    start: {
+                        type: 'string'
+                    }
+                },
+                {
+                }
+            ],
+            expression: {
+                start: {
+                    type: 'name',
+                    value: 'views'
+                },
+                name: 'views'
+            }
+        }
+    };
+    var matches = recursiveFind(pattern, ast),
+        filtered = matches.filter(function(match) {
+            var arg = match.body.args[1],
+                pattern = {
+                    start: {
+                        type: 'name',
+                        value: 'views'
+                    }
+                };
+
+            if (arg.type === 'keyword' && arg.value === 'function') {
+                return false;
+            }
+            return searchOperator(arg, pattern);
+        });
+    return filtered;
+}
+
+function searchOperator(ast, pattern) {
+    if (ast.operator) {
+        return searchOperator(ast.left, pattern) || searchOperator(ast.right, pattern);
+    }
+
+    return deepCompare(pattern, ast);
+}
+
 function recursiveFind(what, where){
     var matches = [];
     function doFind(where){
-        if(deepCompare(what, where)){
+        if (deepCompare(what, where)){
             matches.push(where);
         }
-        if(typeof where === 'object'){
-            if(where === null){
+        if (typeof where === 'object'){
+            if (where === null){
                 return;
             }
-            if('forEach' in where){
+            if ('forEach' in where){
                 where.forEach(doFind);
-            }else{
-                for(var key in where){
+            }else {
+                for (var key in where){
                     doFind(where[key]);
                 }
             }
@@ -169,46 +216,42 @@ function recursiveFind(what, where){
     doFind(where);
     return matches;
 }
+
 function deepCompare(what, where){
-    if(typeof what !== 'object'){
-        if(typeof where !== 'object'){
+    if (typeof what !== 'object'){
+        if (typeof where !== 'object'){
             return what === where;
-        }else{
-            
+        }else {
             return false;
         }
-    }else{
-        if('length' in what){
+    }else {
+        if ('length' in what){
             /* array like */
-            if('length' in where){
-                if(what.length === where.length){
+            if ('length' in where){
+                if (what.length === where.length){
                     return what.every(function compare(whatItem, i){
                         return deepCompare(whatItem, where[i]);
                     });
-                }else{
-                    
-                    return false
+                }else {
+                    return false;
                 }
-            }else{
-                
+            }else {
                 return false;
             }
-        }else{
-            if(typeof where !== 'object'){
+        }else {
+            if (typeof where !== 'object'){
                 return false;
             }
-            if(where === null || what === null){
+            if (where === null || what === null){
                 return where === what;
             }
             /* object like */
-            for(var key in what){
-                if(key in where){
-                    if(!deepCompare(what[key], where[key])){
-                        
+            for (var key in what){
+                if (key in where){
+                    if (!deepCompare(what[key], where[key])){
                         return false;
                     }
-                }else{
-                    
+                }else {
                     return false;
                 }
             }
