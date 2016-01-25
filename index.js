@@ -24,21 +24,36 @@ function readFile(file){
         if (err){
             throw err;
         }
+        try{
         var comments = [], tokens = [],
             ast = uglify.parse(data),
             matches = doTheTrick(resolved, ast),
             compiled;
-
+        }catch(e){
+            console.error('WTF in ' + resolved + ':\n' + e.message);
+            console.error(e.stack);
+            process.exit(-1);
+        }
         compiled = compile(data, matches, transform);
 
         if (options.warn) {
-            var warnings = findIncorrectInvocations(resolved, ast);
+            var warnings;
+            
+            warnings = findIncorrectInvocations(resolved, ast);
             warnings.forEach(function(warn) {
                 console.error(resolved + ': Warn at line', warn.start.line, 'pos', warn.start.col);
             });
+
+          //  console.log(JSON.stringify(ast, null, '    '));
+                warnings = findAllWarnings(resolved, ast);
+                warnings.forEach(function(warn) {
+                    console.error(resolved + ': Warn! at line', warn.start.line, 'pos', warn.start.col);
+                    console.error('\t' + data.substr(warn.start.pos, data.indexOf('\n', warn.start.pos) - warn.start.pos) + '\n');
+                });
         } else {
             if (!options.write){
                 if (data !== compiled) {
+                    console.log('Changes in', resolved);
                     console.log(compiled);
                 } else {
                     console.error('No changes', resolved);
@@ -62,7 +77,7 @@ function colorize(str){
     }
 }
 function transform(str){
-    var substitute = options.argname || 'dataArgument';
+    var substitute = options.argname || 'execView';
 
     /* найдем все синонимы this*/
 
@@ -184,6 +199,34 @@ function findIncorrectInvocations(resolved, ast) {
             return searchOperator(arg, pattern);
         });
     return filtered;
+}
+
+function findAllWarnings(resolved, ast){
+    var pattern = {
+        start: {
+            value: 'views',
+            type: 'name'
+        },
+        args: [
+            {
+                start: {}
+            },
+            {
+                start: {}
+            }
+        ],
+        expression: {
+            start: {
+                type: 'name',
+                value: 'views'
+            },
+            name: 'views'
+        }
+    };
+    return recursiveFind(pattern, ast).filter(function(match){
+        var secondArg = match.args[1].start;
+        return secondArg.type === 'name' || secondArg.type === 'punc' && secondArg.value === '{';
+    });
 }
 
 function searchOperator(ast, pattern) {
