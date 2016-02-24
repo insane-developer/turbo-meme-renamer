@@ -1,6 +1,6 @@
 {
   "name": "turbo-meme-renamer",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -20,8 +20,14 @@
   },
   "dependencies": {
     "acorn": "0.11.0",
+    "chai": "^3.5.0",
+    "color": "^0.11.1",
+    "colors": "^1.1.2",
     "escodegen": "1.6.1",
+    "mocha": "^2.4.5",
     "nopt": "3.0.1",
-    "uglify-js": "2.6.1"
+    "uglify-js": "2.6.1",
+    "vow": "^0.4.12",
+    "vow-fs": "^0.3.4"
   }
 }
