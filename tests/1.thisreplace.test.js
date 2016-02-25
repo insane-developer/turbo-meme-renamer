@@ -1,4 +1,5 @@
 /* global views */
+var ololoe = 42;
 views('wtf', function(){
     var self = this;
     return this.bebebe + self.lalala;
@@ -14,5 +15,18 @@ views('wtf', function(){
 
     var balls,
         steel = balls = this;
+
+    var google = evil? this : 42;
     return evil.bebebe + angry.lalala;
+});
+
+views('thisreplace', function(){
+    var somevar = this;
+
+    somevar = {bla: 'bla'};
+
+    function good(bla) {
+        return ble + 42;
+    }
+    return somevar.bla + somevar.foo;
 });

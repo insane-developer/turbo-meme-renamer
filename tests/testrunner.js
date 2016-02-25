@@ -13,7 +13,7 @@ function run(tests) {
             return runTest(curr);
         });
     }, vow.resolve()).then(function() {
-        console.log('all done');
+        console.log('Tests passed'.green);
     }, function(e) {
         console.error('Tests failed'.red);
     });
@@ -36,9 +36,10 @@ function runTest(test) {
     return module.process([dest]).then(function(){
         return compare(dest, etalon);
     }).then(function() {
-        console.log('\t' + 'OK'.green + '\t' + base);
+        console.log('OK'.green + '\t' + base);
     }, function(e) {
-        console.error('\t' + 'FAIL'.red + '\t' + base + '\n\t' + e.stack);
+        console.error('FAIL'.red + '\t' + base + '\n\t' + e.stack);
+        throw e;
     });
 }
 
@@ -47,14 +48,14 @@ function compare(dest, ethalon) {
         return vowFs.read(path, 'utf-8');
     })).then(function(files) {
         if (files[0] !== files[1]) {
-            var str = ('Not equal:\nexpected: "' + files[1].green + '"\n  actual: "' + files[0].red + '"');
+            var str = ('Not equal.' + ' Expected'.green + ' Actual'.red + '\n' + files[1].green + '\n' + files[0].red);
             console.error(str.stack);
             throw new Error(str);
         }
     });
 }
 if (process.argv < 3) {
-    console.error('no tests specified');
+    console.error('No tests specified');
     return;
 }
 var tests = process.argv.slice(2).sort();

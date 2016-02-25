@@ -5,3 +5,4 @@
         return this.wtf + "string" + 'string';/* comment */
     });views('whatdfgsdgsthis', 'dsfgsdfgdfsdgdgsdfg');
 })(views);
+
