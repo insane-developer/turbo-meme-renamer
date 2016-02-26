@@ -1,4 +1,3 @@
-/* global views */
 views('sdgsdfg', function() {
     var self = this;
     function declaration(smth) {

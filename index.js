@@ -2,7 +2,7 @@ var fs = require('fs'),
     path = require('path'),
     parser = require('acorn'),
     transformer = require('./lib/transformer.js'),
-    codegen = require('escodegen'),
+    codegen = require('./lib/writer.js'),
     vow = require('vow'),
     vowFs = require('vow-fs'),
     options = {};
@@ -24,28 +24,31 @@ function readFile(file){
     return vowFs.read(resolved, 'utf-8').then(function prepareForTheTrick(data){
         try{
             var comments = [], tokens = [],
-                ast = parser.parse(data);
+                ast = parser.parse(data,{
+                    ranges: true,
+                    onComment: comments,
+                    onToken: tokens
+                });
 
         }catch(e){
             e.message = 'WTF in ' + resolved + ':\n' + e.message;
             throw e;
         }
         ast = transformer(ast, data, require('./args.js'));
+        console.log(tokens);
         try{
-        compiled = codegen.generate(ast);
-    } catch(e) {
-        console.log('too bad.', e.stack);
-        compiled = JSON.stringify(ast, null, '  ');
-    }
-            /*matches.reduce(function(prev, ast, i, arr) {
-            console.log('wtf', ast.start, ast.end, ast.type);
-            var str = data.substr(prev[1], ast.start - prev[1]);
-            str += prefectRewrite(ast, data);
-            if (i === arr.length - 1) {
-                str += data.substr(ast.end + 1);
-            }
-            return [prev[0] + str, ast.end + 1];
-        }, ['', 0])[0];*/
+            codegen.attachComments(ast, comments, tokens);
+            console.log(ast);
+            compiled = codegen.generate(ast, {
+                format: {
+                    quotes: 'auto'
+                },
+                comment: true
+            }, data);
+        } catch(e) {
+            console.log('too bad.', e.stack);
+           // compiled = JSON.stringify(ast, null, '  ');
+        }
 
         if (!options.write) {
             if (data !== compiled) {

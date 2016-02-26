@@ -1,4 +1,3 @@
-/* global views */
 var ololoe = 42;
 views('wtf', function(){
     var self = this;

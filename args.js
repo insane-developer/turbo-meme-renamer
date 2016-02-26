@@ -1,5 +1,13 @@
 var globalWhitelist = require('./globals');
 
+function Identifier(name, old) {
+    this.type = 'Identifier';
+    this.start = old.start;
+    this.end = old.end;
+    this.range = old.range;
+    this.name = name;
+}
+
 module.exports = {
     onCallExpression: function(node, parent, scope) {
         var execViewRefs = scope.getStored('execView');
@@ -14,14 +22,11 @@ module.exports = {
             var object = scope.getValue(func.object);
             if (object && object.type === 'ThisExpression' &&
                 func.property.name === 'views') {
-                console.log(node.callee, 'is execView');
-                node.callee = {
-                    type: 'Identifier',
-                    name: 'VIEW_NOT_REPLACED'
-                };
+                //console.log(node.callee, 'is execView');
+                node.callee = new Identifier('VIEW_NOT_REPLACED', node.callee);
                 execViewRefs.push(node.callee);
             } else {
-                console.log(node.callee, 'isn\'t execView');
+                //console.log(node.callee, 'isn\'t execView');
             }
         }
     },
@@ -31,7 +36,7 @@ module.exports = {
             return;
         }
         var object = node.object;
-        console.log(node, 'is global?');
+        //console.log(node, 'is global?');
         if (object.type === 'Identifier' || object.type === 'ThisExpression') {
             object = scope.getValue(object);
             if(!object) {
@@ -39,11 +44,8 @@ module.exports = {
             }
             if (object.type === 'ThisExpression' && (scope.isView || object.scope && object.scope.isView) &&
                 node.property.name in globalWhitelist) {
-                console.log(node, 'is global');
-                node.object = {
-                    type: 'Identifier',
-                    name: 'GLOBAL_NOT_REPLACED'
-                };
+             //   console.log(node, 'is global');
+                node.object = new Identifier('GLOBAL_NOT_REPLACED', node.object);
                 globalRefs.push(node.object);
             }
         }
@@ -78,10 +80,7 @@ module.exports = {
             } else {
                 var newNode = node;
                 if (node.type !== 'Identifier') {
-                    newNode = {
-                        type: 'Identifier',
-                        name: 'XXX_NOT_REPLACED'
-                    };
+                    newNode = new Identifier('THIS_NOT_REPLACED', node);
                 }
                 thisRefs.push(newNode);
                 return newNode;
@@ -153,27 +152,18 @@ module.exports = {
         node.params = [];
 
         if (thisRefs.length || globalRefs.length || execViewIsUsed) {
-            node.params.push({
-                type: 'Identifier',
-                name: firstArgName
-            });
+            node.params.push(new Identifier(firstArgName, node));
         }
 
         if (globalRefs.length || execViewIsUsed) {
-            node.params.push({
-                type: 'Identifier',
-                name: secondArgName
-            });
+            node.params.push(new Identifier(secondArgName, node));
         }
 
         if (execViewIsUsed) {
-            node.params.push({
-                type: 'Identifier',
-                name: thirdArgName
-            });
+            node.params.push(new Identifier(thirdArgName, node));
         }
 
-        console.log('func leave');
+      //  console.log('func leave');
         return node;
     }
 };
