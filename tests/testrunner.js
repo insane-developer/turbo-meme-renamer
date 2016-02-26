@@ -3,6 +3,7 @@ var fs = require('fs'),
     vow = require('vow'),
     vowFs = require('vow-fs'),
     colors = require('colors'),
+    diff = require('diff'),
     module = require('../index.js');
 module.configure({
     write: true
@@ -47,8 +48,16 @@ function compare(dest, ethalon) {
     return vow.all([dest, ethalon].map(function(path) {
         return vowFs.read(path, 'utf-8');
     })).then(function(files) {
-        if (files[0] !== files[1]) {
-            var str = ('Not equal.' + ' Expected'.green + ' Actual'.red + '\n' + files[1].green + '\n' + files[0].red);
+        var equal = true, diffed = diff.diffWords(files[0], files[1]).map(function(part) {
+            var color = part.added ? 'green' : part.removed ? 'red' : 'white';
+            if (color !== 'white' && /\S/.test(part.value)) {
+                equal = false;
+            }
+            return part.value[color];
+        }).join('');
+        if (!equal) {
+            var str = 'Not equal.' + ' Expected'.green + ' Actual'.red;
+            str += '\n' + diffed;
             console.error(str.stack);
             throw new Error(str);
         }

@@ -30,3 +30,13 @@ views('thisreplace', function(){
     }
     return somevar.bla + somevar.foo;
 });
+
+views('innerfunc', function() {
+    var self = this;
+    
+    function awesome(params, that) {
+        return self.value + params.value + that.thing + this.globalvar;
+    }
+    
+    return awesome({ value: 42 }, this);
+});
