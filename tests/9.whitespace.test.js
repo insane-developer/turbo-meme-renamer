@@ -2,7 +2,7 @@
 (function(views){
     'use strict';
     views('whatsthis', 'dsfgsdfgdf');views('wtf', function(){
-        return this.wtf + "string" + 'string';/* comment */
+        return this.wtf + 'string' + 'string';/* comment */
     });views('whatdfgsdgsthis', 'dsfgsdfgdfsdgdgsdfg');
 
     // one-line comment
@@ -12,12 +12,14 @@
                 */
         return 'bla';
     });
-    
+    crazy:
     try{
         bla > bal | ee;
         if(!erp) {
-            while(!qwerty) {
+            here: while(!qwerty) {
                 /* do nothing */
+              
+                continue here;
             }
             do {
                 /* break */
@@ -32,9 +34,12 @@
                     return -1;
         }
         for(var i =0 ; i < qqq; i++) {
-            beAmused();
+            here: beAmused();
             continue;
         }
+        
+        for(   ;  ;   )
+            nothingToDo();
         var e = [2,234,234,234].map(function(item) {
             return -item;
         });

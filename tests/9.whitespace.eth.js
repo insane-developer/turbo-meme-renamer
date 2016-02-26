@@ -1,5 +1,5 @@
 /* global views */
-(function(views) {
+(function(views){
     'use strict';
     views('whatsthis', 'dsfgsdfgdf');views('wtf', function(data){
         return data.wtf + 'string' + 'string';/* comment */
@@ -12,5 +12,42 @@
                 */
         return 'bla';
     });
+    crazy:
+    try{
+        bla > bal | ee;
+        if(!erp) {
+            here: while(!qwerty) {
+                /* do nothing */
+              
+                continue here;
+            }
+            do {
+                /* break */
+            } while(true);
+        } else {
+            lalala;
+        }
+        switch(waf) {
+            case 'lala':
+                break;
+                default:
+                    return -1;
+        }
+        for(var i =0 ; i < qqq; i++) {
+            here: beAmused();
+            continue;
+        }
+        
+        for(   ;  ;   )
+            nothingToDo();
+        var e = [2,234,234,234].map(function(item) {
+            return -item;
+        });
+    }catch(e){
+        throw new Error(e);
+    } finally{
+        beGood();
+    }
 })(views);
+
 
