@@ -9,14 +9,21 @@ module.configure({
     write: true
 });
 function run(tests) {
+    var failed = 0;
     tests.reduce(function(prev, curr) {
         return prev.then(function() {
-            return runTest(curr);
+            return runTest(curr).catch(function(e) {
+                failed++;
+            });
         });
     }, vow.resolve()).then(function() {
-        console.log('Tests passed'.green);
+        if (!failed) {
+            console.log('Tests passed'.green);
+        } else {
+            console.error((failed + ' failed').red);
+        }
     }, function(e) {
-        console.error('Tests failed'.red);
+        console.error('Unexpected error'.red, e);
     });
 }
 
@@ -37,9 +44,9 @@ function runTest(test) {
     return module.process([dest]).then(function(){
         return compare(dest, etalon);
     }).then(function() {
-        console.log('OK'.green + '\t' + base);
+        console.log('  v'.green + ' ' + base);
     }, function(e) {
-        console.error('FAIL'.red + '\t' + base + '\n\t' + e.stack);
+        console.error('  x'.red + ' ' + base + '\n\t' + e.stack);
         throw e;
     });
 }
