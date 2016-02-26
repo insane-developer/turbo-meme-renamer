@@ -2,7 +2,7 @@
 (function(views){
     'use strict';
     views('whatsthis', 'dsfgsdfgdf');views('wtf', function(){
-        return this.wtf + 'string' + 'string';/* comment */
+        return this.wtf + "string" + 'string';/* comment */
     });views('whatdfgsdgsthis', 'dsfgsdfgdfsdgdgsdfg');
 
     // one-line comment
@@ -30,7 +30,9 @@
         switch(waf) {
             case 'lala':
                 break;
-                default:
+            case 'wtf':
+            default:
+                    groove();
                     return -1;
         }
         for(var i =0 ; i < qqq; i++) {
