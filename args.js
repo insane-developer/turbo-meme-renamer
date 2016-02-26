@@ -1,3 +1,5 @@
+var globalWhitelist = require('./globals');
+
 module.exports = {
     onCallExpression: function(node, parent, scope) {
         var execViewRefs = scope.getStored('execView');
@@ -23,6 +25,29 @@ module.exports = {
             }
         }
     },
+    onMemberExpression: function (node, parent, scope, walker) {
+       var globalRefs = scope.getStored('globalrefs');
+        if (!globalRefs) {
+            return;
+        }
+        var object = node.object;
+        console.log(node, 'is global?');
+        if (object.type === 'Identifier' || object.type === 'ThisExpression') {
+            object = scope.getValue(object);
+            if(!object) {
+                console.log('wtf is', node);
+            }
+            if (object.type === 'ThisExpression' && (scope.isView || object.scope && object.scope.isView) &&
+                node.property.name in globalWhitelist) {
+                console.log(node, 'is global');
+                node.object = {
+                    type: 'Identifier',
+                    name: 'GLOBAL_NOT_REPLACED'
+                };
+                globalRefs.push(node.object);
+            }
+        }
+    },
     onRvalue: function(node, parent, scope, walker) {
         var thisRefs = scope.getStored('thisrefs');
         if (!thisRefs) {
@@ -33,6 +58,7 @@ module.exports = {
             var objRef = scope.getValue(node.object);
             if (objRef && objRef.type === 'ThisExpression' &&
                 node.property.name === 'views') {
+             //   console.log(node, 'is execViews');
                 walker.remove();
             }
             return;
@@ -43,9 +69,10 @@ module.exports = {
          //   console.log(node, '!view this');
             return;
         }
+
         var value = scope.getValue(node);
         if (value && value.type === 'ThisExpression') {
-           // console.log(node.name || value.type , 'is this');
+         //   console.log(node.name || value.type , 'is this');
             if (parent.type === 'VariableDeclarator') {
                 walker.remove();
             } else {
@@ -60,7 +87,7 @@ module.exports = {
                 return newNode;
             }
         } else {
-          //  console.log(node.name, 'isn\'t this', value);
+        //    console.log(node.name, 'isn\'t this, it is', value);
         }
 
     },
@@ -68,6 +95,7 @@ module.exports = {
         if (parent.isViewFunction) {
             scope.isView = true;
             scope.store('thisrefs', []);
+            scope.store('globalrefs', []);
             scope.store('execView', []);
         }
     },
@@ -111,6 +139,11 @@ module.exports = {
         thisRefs.forEach(function(item) {
             item.name = firstArgName;
         });
+        
+        var globalRefs = scope.getStored('globalrefs') || [];
+        globalRefs.forEach(function(item) {
+            item.name = secondArgName;
+        });
 
         var execViewRefs = scope.getStored('execView') || [],
             execViewIsUsed = execViewRefs.length || varNames.indexOf('execView') !== -1;
@@ -119,14 +152,14 @@ module.exports = {
         });
         node.params = [];
 
-        if (thisRefs.length || /* second-arg-used || */execViewIsUsed) {
+        if (thisRefs.length || globalRefs.length || execViewIsUsed) {
             node.params.push({
                 type: 'Identifier',
                 name: firstArgName
             });
         }
 
-        if (/* second-arg-used || */execViewIsUsed) {
+        if (globalRefs.length || execViewIsUsed) {
             node.params.push({
                 type: 'Identifier',
                 name: secondArgName
