@@ -1,16 +1,16 @@
 /* global views */
-views('sdgsdfg', function(){
+views('sdgsdfg', function() {
     var self = this;
-    function declaration(smth){
+    function declaration(smth) {
         return this + 'a' + smth;
     }
-    var expression = function(el){
+    var expression = function(el) {
         return el + el + this;
     };
     return declaration.call(self, self.firstarg) + expression.apply(this, this.firstarg + this.firstarg);
 });
 
-views('sdgsdfg', function(){
+views('sdgsdfg', function() {
     var self = this,
         smth = 45,
         inline=this,

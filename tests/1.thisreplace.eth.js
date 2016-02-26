@@ -1,10 +1,10 @@
 var ololoe = 42;
-views('wtf', function(data, req, execView) {
+views('wtf', function(data) {
     var self;
     return data.bebebe + data.lalala;
 });
 
-views('wtf', function(data, req, execView) {
+views('wtf', function(data) {
     var somevar = 42,
         self,
         any;
@@ -19,7 +19,7 @@ views('wtf', function(data, req, execView) {
     return data.bebebe + data.lalala;
 });
 
-views('thisreplace', function(data, req, execView) {
+views('thisreplace', function() {
     var somevar;
 
     somevar = { bla: 'bla' };
@@ -30,7 +30,7 @@ views('thisreplace', function(data, req, execView) {
     return somevar.bla + somevar.foo;
 });
 
-views('innerfunc', function(data, req, execView) {
+views('innerfunc', function(data) {
     var self;
     
     function awesome(params, that) {
