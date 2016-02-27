@@ -1,55 +1,52 @@
-/* global views */
-(function(views){
+(function(views) {
     'use strict';
-    views('whatsthis', 'dsfgsdfgdf');views('wtf', function(data){
-        return data.wtf + 'string' + 'string';/* comment */
-    });views('whatdfgsdgsthis', 'dsfgsdfgdfsdgdgsdfg');
 
-    // one-line comment
-    views('smth', function(/* in-the-middle-of-code comment */) {
-               /* multiline,
-                * indented comment
-                */
-        return 'bla';
-    });
-    crazy:
-        try{
-            bla > bal | ee;
-            if(!erp) {
-                here: while(!qwerty) {
-                    /* do nothing */
-                  
-                    continue here;
-                }
-                do {
-                    /* break */
-                } while(true);
-            } else {
-                lalala;
+    crazy: try {
+        bla > bal | ee;
+        if (!erp) {
+            here: while (!qwerty) {
+
+                continue here;
             }
-            switch(waf) {
-                case 'lala':
-                    break;
-                case 'wtf':
-                default:
-                        groove();
-                        return -1;
-            }
-            for(var i =0 ; i < qqq; i++) {
-                here: beAmused();
-                continue;
-            }
-            
-            for(   ;  ;   )
-                nothingToDo();
-            var e = [2,234,234,234].map(function(item) {
-                return -item;
-            });
-        }catch(e){
-            throw new Error(e);
-        } finally{
-            beGood();
+            do {
+            } while (true);
+        } else {
+            lalala;
         }
+        switch (waf) {
+            case 'lala':
+                break;
+            case 'wtf':
+            default:
+                groove();
+                return -1;
+        }
+        for (var i = 0; i < qqq; i++) {
+            here: beAmused();
+            continue;
+        }
+        for (i = 0; i < qqq; i++) {
+            here: beAmusedAgain();
+            continue;
+        }
+        for (;;)
+            nothingToDo();
+        for(allGood in world)
+            for(var rabbits in hole)
+                cry();
+        var e = [
+            2, 234, 234, 234
+        ].map(function(item) {
+            return -item;
+        });
+        var t = b = ert === false + ( 'all good'? null : undefined);
+        var uberExpression = (true || false) && (typeof null);
+        var t = 4 >>> 5 | !2;
+      
+        t = 1,2,3,4,5;
+    } catch (e) {
+        throw new Error(e);
+    } finally {
+        beGood();
+    }
 })(views);
-
-

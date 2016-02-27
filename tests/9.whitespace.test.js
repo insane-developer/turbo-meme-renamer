@@ -1,55 +1,52 @@
-/* global views */
-(function(views){
+(function(views) {
     'use strict';
-    views('whatsthis', 'dsfgsdfgdf');views('wtf', function(){
-        return this.wtf + "string" + 'string';/* comment */
-    });views('whatdfgsdgsthis', 'dsfgsdfgdfsdgdgsdfg');
 
-    // one-line comment
-    views('smth', function(/* in-the-middle-of-code comment */) {
-               /* multiline,
-                * indented comment
-                */
-        return 'bla';
-    });
-    crazy:
-    try{
+    crazy: try {
         bla > bal | ee;
-        if(!erp) {
-            here: while(!qwerty) {
-                /* do nothing */
-              
+        if (!erp) {
+            here: while (!qwerty) {
+
                 continue here;
             }
             do {
-                /* break */
-            } while(true);
+            } while (true);
         } else {
             lalala;
         }
-        switch(waf) {
+        switch (waf) {
             case 'lala':
                 break;
             case 'wtf':
             default:
-                    groove();
-                    return -1;
+                groove();
+                return -1;
         }
-        for(var i =0 ; i < qqq; i++) {
+        for (var i = 0; i < qqq; i++) {
             here: beAmused();
             continue;
         }
-        
-        for(   ;  ;   )
+        for (i = 0; i < qqq; i++) {
+            here: beAmusedAgain();
+            continue;
+        }
+        for (;;)
             nothingToDo();
-        var e = [2,234,234,234].map(function(item) {
+        for(allGood in world)
+            for(var rabbits in hole)
+                cry();
+        var e = [
+            2, 234, 234, 234
+        ].map(function(item) {
             return -item;
         });
-    }catch(e){
+        var t = b = ert === false + ( 'all good'? null : undefined);
+        var uberExpression = (true || false) && (typeof null);
+        var t = 4 >>> 5 | !2;
+      
+        t = 1,2,3,4,5;
+    } catch (e) {
         throw new Error(e);
-    } finally{
+    } finally {
         beGood();
     }
 })(views);
-
-

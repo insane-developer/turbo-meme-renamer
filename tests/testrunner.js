@@ -42,7 +42,7 @@ function runTest(test) {
     }
     fs.writeFileSync(dest, fs.readFileSync(test));
     return module.process([dest]).then(function(){
-        return compare(dest, etalon);
+        return compare(dest, etalon, /whitespace/.test(base));
     }).then(function() {
         console.log('  v'.green + ' ' + base);
     }, function(e) {
@@ -51,12 +51,28 @@ function runTest(test) {
     });
 }
 
-function compare(dest, ethalon) {
+function compare(dest, ethalon, strictWhitespace) {
     return vow.all([dest, ethalon].map(function(path) {
         return vowFs.read(path, 'utf-8');
     })).then(function(files) {
         var equal = true, diffed = diff.diffWords(files[0], files[1]).map(function(part) {
             var color = part.added ? 'green' : part.removed ? 'red' : 'white';
+            if (strictWhitespace) {
+                part.value = part.value.replace(/\s/g, function(match) {
+                    switch (match) {
+                        case ' ':
+                            return '.'.dim;
+                        case '\r':
+                            return '\\r'.dim + '\r';
+                        case '\n':
+                            return '\\n'.dim + '\n';
+                        case '\t':
+                            return '--->'.dim;
+                            default:
+                                return match;
+                    }
+                });
+            }
             if (color !== 'white' && /\S/.test(part.value)) {
                 equal = false;
             }
