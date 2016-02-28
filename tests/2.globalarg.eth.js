@@ -12,12 +12,13 @@ views('simple', function(data, req, execView) {
     return execView('bla', traffic);
 });
 
-views('scoped', function (data, req) {
+views('scoped', function(params,request) {
     var self;
-    function someTrickyThing(data) {
-        return req.Traffic.items.map(function (item) {
+    function someTrickyThing(data, req) {
+        return request.Traffic.items.map(function(item) {
             return item.url + this.MordaZone;
-        }, data);
+        }, params);
     }
-    return someTrickyThing(data);
+
+    return someTrickyThing(params);
 });

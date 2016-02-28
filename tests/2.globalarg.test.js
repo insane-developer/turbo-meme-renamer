@@ -14,7 +14,7 @@ views('simple', function() {
 
 views('scoped', function() {
     var self = this;
-    function someTrickyThing(data) {
+    function someTrickyThing(data, req) {
         return self.Traffic.items.map(function(item) {
             return item.url + this.MordaZone;
         }, self);

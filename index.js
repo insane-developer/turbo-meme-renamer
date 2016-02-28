@@ -35,10 +35,10 @@ function readFile(file){
             throw e;
         }
         ast = transformer(ast, data, require('./args.js'));
-        console.log(tokens);
+
         try{
             codegen.attachComments(ast, comments, tokens);
-            console.log(ast);
+
             compiled = codegen.generate(ast, {
                 format: {
                     quotes: 'auto'

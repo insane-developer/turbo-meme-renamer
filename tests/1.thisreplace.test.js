@@ -15,6 +15,10 @@ views('wtf', function(){
     var balls,
         steel = balls = this;
 
+    function somefunc(data, req) {
+        return data.views('dfgd') + data.Traffic;
+    }
+
     var google = evil? this : 42;
     return evil.bebebe + angry.lalala;
 });
@@ -27,6 +31,7 @@ views('thisreplace', function(){
     function good(bla) {
         return ble + 42;
     }
+
     return somevar.bla + somevar.foo;
 });
 
@@ -37,5 +42,5 @@ views('innerfunc', function() {
         return self.value + params.value + that.thing + this.globalvar;
     }
     
-    return awesome({ value: 42 }, this);
+    return awesome({value: 42}, this);
 });

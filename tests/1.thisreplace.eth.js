@@ -4,7 +4,7 @@ views('wtf', function(data) {
     return data.bebebe + data.lalala;
 });
 
-views('wtf', function(data) {
+views('wtf', function(params) {
     var somevar = 42,
         self,
         any;
@@ -13,16 +13,20 @@ views('wtf', function(data) {
         angry;
 
     var balls,
-        steel = balls = data;
+        steel = balls = params;
 
-    var google = data || 42;
-    return data.bebebe + data.lalala;
+    function somefunc(data, req) {
+        return data.views('dfgd') + data.Traffic;
+    }
+
+    var google =params || 42;
+    return params.bebebe + params.lalala;
 });
 
 views('thisreplace', function() {
     var somevar;
 
-    somevar = { bla: 'bla' };
+    somevar = {bla: 'bla'};
 
     function good(bla) {
         return ble + 42;
@@ -37,5 +41,5 @@ views('innerfunc', function(data) {
         return data.value + params.value + that.thing + this.globalvar;
     }
     
-    return awesome({ value: 42 }, data);
+    return awesome({value: 42}, data);
 });

@@ -96,6 +96,7 @@ module.exports = {
             scope.store('thisrefs', []);
             scope.store('globalrefs', []);
             scope.store('execView', []);
+            scope.store('localVars', {});
         }
     },
     onFunction: function(node, parent) {
@@ -110,25 +111,38 @@ module.exports = {
         }
     },
     onFunctionLeave: function(node, parent, scope) {
+        var varNames = scope.getStored('localVars');
+
         if (!node.isViewFunction) {
+            if (varNames) {
+                /* Нужно знать имена всех сущностей любых функций внутри views,
+                 * чтобы случайно ничего не сломать при добавлении аргументов
+                 */
+                scope.getNames(false).forEach(function(name) {
+                    varNames[name] = true;
+                });
+            }
             return;
         }
-        var varNames = scope.getNames(),
-            firstArgProposals = ['data', 'params', 'ctx', 'dataArg', 'FIXME_no_imagination_local_data'],
+        scope.getNames().forEach(function(name) {
+            varNames[name] = true;
+        });
+
+        var firstArgProposals = ['data', 'params', 'ctx', 'dataArg', 'FIXME_no_imagination_local_data'],
             secondArgProposals = ['req', 'request', 'reqData', 'reqArg', 'FIXME_no_imagination_request_data'],
             firstArgName,
             secondArgName,
             thirdArgName = 'execView';
 
         firstArgProposals.some(function(name) {
-            if (varNames.indexOf(name) === -1) {
+            if (!(name in varNames)) {
                 firstArgName = name;
                 return true;
             }
         });
 
         secondArgProposals.some(function(name) {
-            if (varNames.indexOf(name) === -1) {
+            if (!(name in varNames)) {
                 secondArgName = name;
                 return true;
             }
@@ -145,7 +159,7 @@ module.exports = {
         });
 
         var execViewRefs = scope.getStored('execView') || [],
-            execViewIsUsed = execViewRefs.length || varNames.indexOf('execView') !== -1;
+            execViewIsUsed = execViewRefs.length || ('execView' in varNames);
         execViewRefs.forEach(function(item) {
             item.name = thirdArgName;
         });
