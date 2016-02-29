@@ -23,6 +23,7 @@
     "colors": "^1.1.2",
     "diff": "^2.2.1",
     "escodegen": "1.6.1",
+    "esprima": "^2.7.2",
     "estraverse": "^4.1.1",
     "nopt": "3.0.1",
     "vow": "^0.4.12",

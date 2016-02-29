@@ -1,6 +1,6 @@
 var fs = require('fs'),
     path = require('path'),
-    parser = require('acorn'),
+    parser = require('esprima'),
     transformer = require('./lib/transformer.js'),
     codegen = require('./lib/writer.js'),
     vow = require('vow'),
@@ -24,10 +24,11 @@ function readFile(file){
     return vowFs.read(resolved, 'utf-8').then(function prepareForTheTrick(data){
         try{
             var comments = [], tokens = [],
-                ast = parser.parse(data,{
-                    ranges: true,
-                    onComment: comments,
-                    onToken: tokens
+                ast = parser.parse(data, {
+                    loc: true,
+                    range: true,
+                    attachComment: true,
+                    tokens: true
                 });
 
         }catch(e){
@@ -37,8 +38,6 @@ function readFile(file){
         ast = transformer(ast, data, require('./args.js'));
 
         try{
-            codegen.attachComments(ast, comments, tokens);
-
             compiled = codegen.generate(ast, {
                 format: {
                     quotes: 'auto'

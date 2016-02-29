@@ -12,7 +12,7 @@ views('simple', function(data, req, execView) {
     return execView('bla', traffic);
 });
 
-views('scoped', function(params,request) {
+views('scoped', function(params, request) {
     var self;
     function someTrickyThing(data, req) {
         return request.Traffic.items.map(function(item) {

@@ -1,10 +1,10 @@
 var ololoe = 42;
-views('wtf', function(data) {
+views('wtf', function(data){
     var self;
     return data.bebebe + data.lalala;
 });
 
-views('wtf', function(params) {
+views('wtf', function(params){
     var somevar = 42,
         self,
         any;
@@ -15,7 +15,7 @@ views('wtf', function(params) {
     var balls,
         steel = balls = params;
 
-    function somefunc(data, req) {
+    function somefunc(data, req){
         return data.views('dfgd') + data.Traffic;
     }
 
@@ -23,7 +23,7 @@ views('wtf', function(params) {
     return params.bebebe + params.lalala;
 });
 
-views('thisreplace', function() {
+views('thisreplace', function(){
     var somevar;
 
     somevar = {bla: 'bla'};

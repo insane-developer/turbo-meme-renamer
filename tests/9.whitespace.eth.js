@@ -7,6 +7,9 @@ false;
 null;
 undefined;
 'hello world';
+"hello world";
+"don't \"know\"";
+'don\'t "know"';
 [1, 2, 3];
 /* var declaration */
 var a = 1;
@@ -72,7 +75,7 @@ b = a?e:t;
 b = w || (a = x);
 switch(true) {
     case true:
-        b = 42;
+        b = 42; // great value!
         break;
     case a === 4 | 5:
         b = 41;
@@ -103,3 +106,5 @@ c = 2 * 5 + 3 * 2;
 d = 2 * 5 + 3;
 e = 2 + 5 * 3;
 s = 5 + 4 + 3 + 2;
+/* end */
+// really this is the end

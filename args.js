@@ -2,9 +2,11 @@ var globalWhitelist = require('./globals');
 
 function Identifier(name, old) {
     this.type = 'Identifier';
-    this.start = old.start;
-    this.end = old.end;
-    this.range = old.range;
+    if (old) {
+        this.start = old.start;
+        this.end = old.end;
+        this.range = old.range;
+    }
     this.name = name;
 }
 
@@ -31,7 +33,7 @@ module.exports = {
         }
     },
     onMemberExpression: function (node, parent, scope, walker) {
-       var globalRefs = scope.getStored('globalrefs');
+        var globalRefs = scope.getStored('globalrefs');
         if (!globalRefs) {
             return;
         }
@@ -39,14 +41,15 @@ module.exports = {
         //console.log(node, 'is global?');
         if (object.type === 'Identifier' || object.type === 'ThisExpression') {
             object = scope.getValue(object);
-            if(!object) {
-                console.log('wtf is', node);
-            }
-            if (object.type === 'ThisExpression' && (scope.isView || object.scope && object.scope.isView) &&
-                node.property.name in globalWhitelist) {
-             //   console.log(node, 'is global');
-                node.object = new Identifier('GLOBAL_NOT_REPLACED', node.object);
-                globalRefs.push(node.object);
+            if (node.property.name in globalWhitelist) {
+                if (object && object.type === 'ThisExpression' && (scope.isView || object.scope && object.scope.isView)) {
+                    node.object = new Identifier('GLOBAL_NOT_REPLACED', node.object);
+                    globalRefs.push(node.object);
+                } else {
+                    console.warn('Suspicious member looks like global'.yellow,
+                        (node.loc && node.loc.start ? 'at line ' + node.loc.start.line + ', col ' + node.loc.start.column : '').yellow,
+                        node.object.type + '.' + node.property.name);
+                }
             }
         }
     },
@@ -133,49 +136,55 @@ module.exports = {
             firstArgName,
             secondArgName,
             thirdArgName = 'execView';
+        var thisRefs = scope.getStored('thisrefs') || [],
+            globalRefs = scope.getStored('globalrefs') || [],
+            execViewRefs = scope.getStored('execView') || [],
+            execViewIsUsed = execViewRefs.length || ('execView' in varNames);
+        if (node.params.length === 3) {
+            firstArgName = node.params[0].name;
+            secondArgName = node.params[1].name;
+            thirdArgName = node.params[3].name;
+        } else {
+            firstArgProposals.some(function(name) {
+                if (!(name in varNames)) {
+                    firstArgName = name;
+                    return true;
+                }
+            });
 
-        firstArgProposals.some(function(name) {
-            if (!(name in varNames)) {
-                firstArgName = name;
-                return true;
+            secondArgProposals.some(function(name) {
+                if (!(name in varNames)) {
+                    secondArgName = name;
+                    return true;
+                }
+            });
+ 
+            node.params = [];
+
+            if (thisRefs.length || globalRefs.length || execViewIsUsed) {
+                node.params.push(new Identifier(firstArgName));
             }
-        });
 
-        secondArgProposals.some(function(name) {
-            if (!(name in varNames)) {
-                secondArgName = name;
-                return true;
+            if (globalRefs.length || execViewIsUsed) {
+                node.params.push(new Identifier(secondArgName));
             }
-        });
 
-        var thisRefs = scope.getStored('thisrefs') || [];
+            if (execViewIsUsed) {
+                node.params.push(new Identifier(thirdArgName));
+            }
+        }
+
         thisRefs.forEach(function(item) {
             item.name = firstArgName;
         });
-        
-        var globalRefs = scope.getStored('globalrefs') || [];
+
         globalRefs.forEach(function(item) {
             item.name = secondArgName;
         });
 
-        var execViewRefs = scope.getStored('execView') || [],
-            execViewIsUsed = execViewRefs.length || ('execView' in varNames);
         execViewRefs.forEach(function(item) {
             item.name = thirdArgName;
         });
-        node.params = [];
-
-        if (thisRefs.length || globalRefs.length || execViewIsUsed) {
-            node.params.push(new Identifier(firstArgName, node));
-        }
-
-        if (globalRefs.length || execViewIsUsed) {
-            node.params.push(new Identifier(secondArgName, node));
-        }
-
-        if (execViewIsUsed) {
-            node.params.push(new Identifier(thirdArgName, node));
-        }
 
       //  console.log('func leave');
         return node;
