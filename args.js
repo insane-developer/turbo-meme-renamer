@@ -47,7 +47,7 @@ module.exports = {
                 if (object && object.type === 'ThisExpression' && (scope.isView || object.scope && object.scope.isView)) {
                     node.object = new Identifier('GLOBAL_NOT_REPLACED', node.object);
                     globalRefs.push(node.object);
-                } else {
+                } else if (!node.object.name || scope.args.indexOf(node.object.name) !== 1) {
                     console.warn('Suspicious member looks like global'.yellow,
                         (node.loc && node.loc.start ? 'at line ' + node.loc.start.line + ', col ' + node.loc.start.column : '').yellow,
                         (node.object.name || node.object.type) + '.' + node.property.name);
@@ -142,10 +142,9 @@ module.exports = {
             globalRefs = scope.getStored('globalrefs') || [],
             execViewRefs = scope.getStored('execView') || [],
             execViewIsUsed = execViewRefs.length || ('execView' in varNames);
-        if (node.params.length === 3) {
+        
+        if (node.params[0] && node.params[0].name !== 'execView') {
             firstArgName = node.params[0].name;
-            secondArgName = node.params[1].name;
-            thirdArgName = node.params[2].name;
         } else {
             firstArgProposals.some(function(name) {
                 if (!(name in varNames)) {
@@ -153,27 +152,32 @@ module.exports = {
                     return true;
                 }
             });
+            if (thisRefs.length || globalRefs.length || execViewIsUsed) {
+                node.params[0] = new Identifier(firstArgName);
+            }
+        }
 
+        if (node.params[1]) {
+            secondArgName = node.params[1].name;
+        } else {
             secondArgProposals.some(function(name) {
                 if (!(name in varNames)) {
                     secondArgName = name;
                     return true;
                 }
             });
- 
-            node.params = [];
-
-            if (thisRefs.length || globalRefs.length || execViewIsUsed) {
-                node.params.push(new Identifier(firstArgName));
-            }
 
             if (globalRefs.length || execViewIsUsed) {
-                node.params.push(new Identifier(secondArgName));
+                node.params[1] = new Identifier(secondArgName);
             }
 
-            if (execViewIsUsed) {
-                node.params.push(new Identifier(thirdArgName));
-            }
+        }
+        if (node.params[2]) {
+            thirdArgName = node.params[2].name;
+        }
+
+        if (execViewIsUsed) {
+            node.params[2] = new Identifier(thirdArgName);
         }
 
         thisRefs.forEach(function(item) {
