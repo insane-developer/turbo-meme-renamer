@@ -15,14 +15,22 @@ if (fs.existsSync(to)) {
     data2 = require(to);
 }
 
-var key, result = {};
+var key, names = [];
 
 for (key in data) {
-    result[key] = true;
+    names.push(key);
 }
 
 for (key in data2) {
-    result[key] = true;
+    names.push(key);
 }
+
+names = names.sort();
+
+var result = {};
+
+names.forEach(function(name) {
+    result[name] = true;
+});
 
 fs.writeFileSync(to, JSON.stringify(result, null, '    '), 'utf-8');

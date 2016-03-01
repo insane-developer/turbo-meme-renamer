@@ -1,5 +1,6 @@
 var globalWhitelist = require('./globals'),
-    walker = require('estraverse');
+    walker = require('estraverse'),
+    filename = '';
 
 function Identifier(name, old) {
     this.type = 'Identifier';
@@ -13,9 +14,6 @@ function Identifier(name, old) {
 
 function cleanRemovedVars(ast, removed) {
     return walker.replace(ast, {
-        enter: function (node) {
-            
-        },
         leave: function (node) {
             if (node.type === 'VariableDeclarator' && !node.init && removed[node.id.name]) {
                 this.remove();
@@ -24,7 +22,14 @@ function cleanRemovedVars(ast, removed) {
     });
 }
 
+function location(node) {
+    return (filename ? 'in ' + filename : '') +
+        (node.loc && node.loc.start ? ' at line ' + node.loc.start.line + ', col ' + node.loc.start.column : '');
+}
 module.exports = {
+    setFile: function (file) {
+        filename = file;
+    },
     onCallExpression: function(node, parent, scope) {
         var execViewRefs = scope.getStored('execView');
         if (!execViewRefs) {
@@ -41,15 +46,15 @@ module.exports = {
                     node.callee = new Identifier('VIEW_NOT_REPLACED', node.callee);
                     execViewRefs.push(node.callee);
                 } else {
-                    console.warn('Suspicious member looks like view invocation'.yellow,
-                        (node.loc && node.loc.start ? 'at line ' + node.loc.start.line + ', col ' + node.loc.start.column : '').yellow,
+                    console.warn('Suspicious member looks like view invocation '.yellow + location(node),
                         (object.name || object.type) + '.' + func.property.name);
                 }
             }
         }
     },
     onMemberExpression: function (node, parent, scope, walker) {
-        var globalRefs = scope.getStored('globalrefs');
+        var globalRefs = scope.getStored('globalrefs'),
+            viewArgs = scope.getStored('viewArgs');
         if (!globalRefs) {
             return;
         }
@@ -58,13 +63,13 @@ module.exports = {
         if (object.type === 'Identifier' || object.type === 'ThisExpression') {
 
             object = scope.getValue(object);
-            if (node.property.name in globalWhitelist) {
-                if (object && object.type === 'ThisExpression' && (scope.isView || object.scope && object.scope.isView)) {
+            if (globalWhitelist.hasOwnProperty(node.property.name)) {
+                if ((object && object.type === 'ThisExpression' && (scope.isView || object.scope && object.scope.isView)) ||
+                    (node.object.name && viewArgs.indexOf(node.object.name) === 0)) {
                     node.object = new Identifier('GLOBAL_NOT_REPLACED', node.object);
                     globalRefs.push(node.object);
-                } else if (!node.object.name || scope.args.indexOf(node.object.name) !== 1) {
-                    console.warn('Suspicious member looks like global'.yellow,
-                        (node.loc && node.loc.start ? 'at line ' + node.loc.start.line + ', col ' + node.loc.start.column : '').yellow,
+                } else if (!node.object.name || viewArgs.indexOf(node.object.name) !== 1) {
+                    console.warn('Suspicious member looks like global '.yellow + location(node),
                         (node.object.name || node.object.type) + '.' + node.property.name);
                 }
             }
@@ -130,6 +135,7 @@ module.exports = {
             scope.store('execView', []);
             scope.store('localVars', {});
             scope.store('removed', {});
+            scope.store('viewArgs', scope.getNames(false));
         }
     },
     onFunction: function(node, parent) {

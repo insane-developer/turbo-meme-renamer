@@ -69,6 +69,9 @@ if (b < c) { ; } else 42;
 if (b > c) {
     b++;
 }else{  }
+if (qwer && !(bla || ble)) {
+    console.log('Q');
+}
 b = a ? e : t;
 b = a? e:t;
 b = a?e:t;
@@ -80,6 +83,9 @@ switch(true) {
     case a === 4 | 5:
         b = 41;
 
+    case 'lba':
+    case 'vase':
+        s = 4;
     default:
         b = 0;
 
@@ -98,6 +104,7 @@ function world() {
     } finally {
         return new Hope();
     }
+    return;
 }
 /* operator precedence */
 a = (2 + 5) * (3 - 2);
@@ -106,5 +113,7 @@ c = 2 * 5 + 3 * 2;
 d = 2 * 5 + 3;
 e = 2 + 5 * 3;
 s = 5 + 4 + 3 + 2;
+var str = 'bal' +
+    'lab' + (true ? 'qwe' : 'ewq');
 /* end */
 // really this is the end

@@ -24,14 +24,14 @@ for (var i = 0; i < 10; i ++) ;
 for (var key in object) ;
 /* functions */
 function bla(){}
-function blabla(param){}
-function blablable(param, param2){}
+function blabla(param) {}
+function blablable(param, param2) {}
 function blablable   (param, param2)  {
     return {
         x: true
     };
 }
-(function invokeMe(global){
+(function invokeMe(global) {
     if (!global.batman) {
         throw new Evil();
     }
@@ -69,6 +69,9 @@ if (b < c) { ; } else 42;
 if (b > c) {
     b++;
 }else{  }
+if (qwer && !(bla || ble)) {
+    console.log('Q');
+}
 b = a ? e : t;
 b = a? e:t;
 b = a?e:t;
@@ -80,6 +83,9 @@ switch(true) {
     case a === 4 | 5:
         b = 41;
 
+    case 'lba':
+    case 'vase':
+        s = 4;
     default:
         b = 0;
 
@@ -98,6 +104,7 @@ function world() {
     } finally {
         return new Hope();
     }
+    return;
 }
 /* operator precedence */
 a = (2 + 5) * (3 - 2);
@@ -106,5 +113,7 @@ c = 2 * 5 + 3 * 2;
 d = 2 * 5 + 3;
 e = 2 + 5 * 3;
 s = 5 + 4 + 3 + 2;
+var str = 'bal' +
+    'lab' + (true ? 'qwe' : 'ewq');
 /* end */
 // really this is the end

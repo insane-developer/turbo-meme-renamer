@@ -23,5 +23,5 @@ views('scoped', function(params, request) {
 });
 
 views('replaced', function(somevar, gloglo) {
-    return somevar.a + somevar.MordaZone + gloglo.Traffic.rate;
+    return somevar.a + gloglo.MordaZone + gloglo.Traffic.rate;
 });
