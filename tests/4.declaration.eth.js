@@ -13,7 +13,6 @@ views('sdgsdfg', function(data, req, execView) {
     var self,
         smth = 45,
         inline,
-        elses=42,
-        declaration;
+        elses= 42, declaration;
     return views('dfgdgsdf', data) + views('dfgdgsdf', {e:4}) + data + execView('ololo', data);
 });

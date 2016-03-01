@@ -22,3 +22,7 @@ views('scoped', function() {
 
     return someTrickyThing(this);
 });
+
+views('replaced', function(somevar, gloglo) {
+    return somevar.a + somevar.MordaZone + gloglo.Traffic.rate;
+});

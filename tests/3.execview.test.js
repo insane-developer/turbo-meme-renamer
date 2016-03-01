@@ -18,3 +18,9 @@ views('omg', function(execView) {
 
     return blabla(name, {dfg:4}) + evil('q', {}) + tricky('a', {});
 });
+
+views('replaced', function(data, glo, execView) {
+    var x = execView(name, {dfg:4});
+
+    return 'ok';
+});

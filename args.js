@@ -22,13 +22,15 @@ module.exports = {
         }
         if (func && func.type === 'MemberExpression') {
             var object = scope.getValue(func.object);
-            if (object && object.type === 'ThisExpression' &&
-                func.property.name === 'views') {
-                //console.log(node.callee, 'is execView');
-                node.callee = new Identifier('VIEW_NOT_REPLACED', node.callee);
-                execViewRefs.push(node.callee);
-            } else {
-                //console.log(node.callee, 'isn\'t execView');
+            if (func.property.name === 'views') {
+                if (object && object.type === 'ThisExpression') {
+                    node.callee = new Identifier('VIEW_NOT_REPLACED', node.callee);
+                    execViewRefs.push(node.callee);
+                } else {
+                    console.warn('Suspicious member looks like view invocation'.yellow,
+                        (node.loc && node.loc.start ? 'at line ' + node.loc.start.line + ', col ' + node.loc.start.column : '').yellow,
+                        (object.name || object.type) + '.' + func.property.name);
+                }
             }
         }
     },
@@ -38,7 +40,7 @@ module.exports = {
             return;
         }
         var object = node.object;
-        //console.log(node, 'is global?');
+
         if (object.type === 'Identifier' || object.type === 'ThisExpression') {
             object = scope.getValue(object);
             if (node.property.name in globalWhitelist) {
@@ -48,7 +50,7 @@ module.exports = {
                 } else {
                     console.warn('Suspicious member looks like global'.yellow,
                         (node.loc && node.loc.start ? 'at line ' + node.loc.start.line + ', col ' + node.loc.start.column : '').yellow,
-                        node.object.type + '.' + node.property.name);
+                        (node.object.name || node.object.type) + '.' + node.property.name);
                 }
             }
         }
@@ -143,7 +145,7 @@ module.exports = {
         if (node.params.length === 3) {
             firstArgName = node.params[0].name;
             secondArgName = node.params[1].name;
-            thirdArgName = node.params[3].name;
+            thirdArgName = node.params[2].name;
         } else {
             firstArgProposals.some(function(name) {
                 if (!(name in varNames)) {

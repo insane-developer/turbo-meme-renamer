@@ -24,14 +24,14 @@ for (var i = 0; i < 10; i ++) ;
 for (var key in object) ;
 /* functions */
 function bla(){}
-function blabla(param){}
-function blablable(param, param2){}
+function blabla(param) {}
+function blablable(param, param2) {}
 function blablable   (param, param2)  {
     return {
         x: true
     };
 }
-(function invokeMe(global){
+(function invokeMe(global) {
     if (!global.batman) {
         throw new Evil();
     }
