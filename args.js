@@ -1,4 +1,5 @@
-var globalWhitelist = require('./globals');
+var globalWhitelist = require('./globals'),
+    walker = require('estraverse');
 
 function Identifier(name, old) {
     this.type = 'Identifier';
@@ -8,6 +9,19 @@ function Identifier(name, old) {
         this.range = old.range;
     }
     this.name = name;
+}
+
+function cleanRemovedVars(ast, removed) {
+    return walker.replace(ast, {
+        enter: function (node) {
+            
+        },
+        leave: function (node) {
+            if (node.type === 'VariableDeclarator' && !node.init && removed[node.id.name]) {
+                this.remove();
+            }
+        }
+    });
 }
 
 module.exports = {
@@ -42,6 +56,7 @@ module.exports = {
         var object = node.object;
 
         if (object.type === 'Identifier' || object.type === 'ThisExpression') {
+
             object = scope.getValue(object);
             if (node.property.name in globalWhitelist) {
                 if (object && object.type === 'ThisExpression' && (scope.isView || object.scope && object.scope.isView)) {
@@ -56,7 +71,8 @@ module.exports = {
         }
     },
     onRvalue: function(node, parent, scope, walker) {
-        var thisRefs = scope.getStored('thisrefs');
+        var thisRefs = scope.getStored('thisrefs'),
+            removed = scope.getStored('removed');
         if (!thisRefs) {
             return;
         }
@@ -67,6 +83,9 @@ module.exports = {
                 node.property.name === 'views') {
              //   console.log(node, 'is execViews');
                 walker.remove();
+                if (parent.type === 'VariableDeclarator') {
+                    removed[parent.id.name] = true;
+                }
             }
             return;
         }
@@ -82,6 +101,7 @@ module.exports = {
          //   console.log(node.name || value.type , 'is this');
             if (parent.type === 'VariableDeclarator') {
                 walker.remove();
+                removed[parent.id.name] = true;
             } else {
                 var newNode = node;
                 if (node.type !== 'Identifier') {
@@ -95,6 +115,13 @@ module.exports = {
         }
 
     },
+    onLvalue: function (node, parent, scope) {
+        var removed = scope.getStored('removed');
+        if (!removed) {
+            return;
+        }
+        removed[node.name] = false;
+    },
     onFunctionBody: function(node, parent, scope) {
         if (parent.isViewFunction) {
             scope.isView = true;
@@ -102,6 +129,7 @@ module.exports = {
             scope.store('globalrefs', []);
             scope.store('execView', []);
             scope.store('localVars', {});
+            scope.store('removed', {});
         }
     },
     onFunction: function(node, parent) {
@@ -192,7 +220,8 @@ module.exports = {
             item.name = thirdArgName;
         });
 
+        
       //  console.log('func leave');
-        return node;
+        return cleanRemovedVars(node, scope.getStored('removed'));
     }
 };

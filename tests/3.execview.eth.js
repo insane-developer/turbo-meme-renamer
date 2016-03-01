@@ -11,10 +11,7 @@ views('sdfas', function(data, req, execView) {
 });
 
 views('omg', function(data, req, execView) {
-    var blabla = execView,
-        self,
-        evil,
-        tricky;
+    var blabla = execView;
 
     return blabla(name, {dfg:4}) + execView('q', {}) + execView('a', {});
 });

@@ -1,16 +1,12 @@
 var ololoe = 42;
 views('wtf', function(data) {
-    var self;
+
     return data.bebebe + data.lalala;
 });
 
 views('wtf', function(params) {
-    var somevar = 42,
-        self,
-        any;
+    var somevar = 42;
 
-    var evil,
-        angry;
 
     var balls,
         steel = balls = params;
@@ -36,7 +32,6 @@ views('thisreplace', function(){
 });
 
 views('innerfunc', function(data) {
-    var self;
     
     function awesome(params, that) {
         return data.value + params.value + that.thing + this.globalvar;

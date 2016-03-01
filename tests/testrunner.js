@@ -55,7 +55,7 @@ function compare(dest, ethalon, strictWhitespace) {
     return vow.all([dest, ethalon].map(function(path) {
         return vowFs.read(path, 'utf-8');
     })).then(function(files) {
-        var equal = true, diffed = diff.diffChars(files[0], files[1]).map(function(part) {
+        var equal = true, diffed = diff[strictWhitespace ? 'diffChars' : 'diffWords'](files[0], files[1]).map(function(part) {
             var color = part.added ? 'green' : part.removed ? 'red' : 'white';
             if (strictWhitespace) {
                 part.value = part.value.replace(/\s/g, function(match) {

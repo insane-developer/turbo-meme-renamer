@@ -1,6 +1,5 @@
 views('simple', function(data, req, execView) {
     var traffic = req.Traffic,
-        self,
         bla = 41;
     
     bla++;
@@ -13,7 +12,7 @@ views('simple', function(data, req, execView) {
 });
 
 views('scoped', function(params, request) {
-    var self;
+
     function someTrickyThing(data, req) {
         return request.Traffic.items.map(function(item) {
             return item.url + this.MordaZone;
