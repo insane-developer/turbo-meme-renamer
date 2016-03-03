@@ -1,4 +1,5 @@
 var globalWhitelist = require('./globals'),
+    globalBlacklist = require('./blacklist'),
     walker = require('estraverse'),
     filename = '';
 
@@ -63,7 +64,8 @@ module.exports = {
         if (object.type === 'Identifier' || object.type === 'ThisExpression') {
 
             object = scope.getValue(object);
-            if (globalWhitelist.hasOwnProperty(node.property.name)) {
+            if (globalWhitelist.hasOwnProperty(node.property.name) &&
+                !globalBlacklist.hasOwnProperty(node.property.name)) {
                 if ((object && object.type === 'ThisExpression' && (scope.isView || object.scope && object.scope.isView)) ||
                     (node.object.name && viewArgs.indexOf(node.object.name) === 0)) {
                     node.object = new Identifier('GLOBAL_NOT_REPLACED', node.object);

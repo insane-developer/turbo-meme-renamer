@@ -1,0 +1,11 @@
+{
+    "blocks": true,
+    "css": true,
+    "groups": true,
+    "head": true,
+    "index": true,
+    "js": true,
+    "now": true,
+    "start": true,
+    "type": true
+}

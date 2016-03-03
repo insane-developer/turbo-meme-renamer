@@ -79,9 +79,13 @@ function readFile(file){
                 console.error('No changes', resolved);
             }
         } else {
-            return vowFs.write(resolved, compiled, 'utf-8').then(function() {
-                console.log('Записан:', file);
-            });
+            if (data === compiled) {
+                return vow.resolve();
+            } else {
+                return vowFs.write(resolved, compiled, 'utf-8').then(function() {
+                    console.log('Записан:', file);
+                });
+            }
         }
     });
 }

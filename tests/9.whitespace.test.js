@@ -72,6 +72,10 @@ if (b > c) {
 if (qwer && !(bla || ble)) {
     console.log('Q');
 }
+if (!(browser && (browser.isMobile || browser.isTablet))) {
+    bla();
+}
+!(browser && (browser.isMobile || browser.isTablet));
 b = a ? e : t;
 b = a? e:t;
 b = a?e:t;
@@ -115,5 +119,36 @@ e = 2 + 5 * 3;
 s = 5 + 4 + 3 + 2;
 var str = 'bal' +
     'lab' + (true ? 'qwe' : 'ewq');
+//arrayExpression
+[].map();
+// literal
+'dfgd'.map();
+// identifier
+bla.map();
+// ThisExpression
+this.map();
+// CallExpression
+a().map();
+// memberExpression
+a.b.map();
+
+// FunctionExpression
+(function(){}).bla();
+// ObjectExpression
+({fg: 1}).bla();
+// BinaryExpression
+(fghdf+ fgh).map;
+// logicalExpression
+(fg && x).map();
+// UpdateExpression
+(++dh).rty;
+// NewExpression
+new Date().time();
+// UnaryExpression
+(typeof []).join()
+//SequenceExpression
+(a = 5, b).map();
+// AssignmentExpression
+(a = b).map();
 /* end */
 // really this is the end
