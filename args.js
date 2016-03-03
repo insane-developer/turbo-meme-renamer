@@ -42,7 +42,7 @@ module.exports = {
         }
         if (func && func.type === 'MemberExpression') {
             var object = scope.getValue(func.object);
-            if (func.property.name === 'views') {
+            if (func.property.name === 'views' || func.property.value === 'views') {
                 if (object && object.type === 'ThisExpression') {
                     node.callee = new Identifier('VIEW_NOT_REPLACED', node.callee);
                     execViewRefs.push(node.callee);
@@ -64,15 +64,16 @@ module.exports = {
         if (object.type === 'Identifier' || object.type === 'ThisExpression') {
 
             object = scope.getValue(object);
-            if (globalWhitelist.hasOwnProperty(node.property.name) &&
-                !globalBlacklist.hasOwnProperty(node.property.name)) {
+            var property = node.property.name || node.property.value;
+            if (globalWhitelist.hasOwnProperty(property) &&
+                !globalBlacklist.hasOwnProperty(property)) {
                 if ((object && object.type === 'ThisExpression' && (scope.isView || object.scope && object.scope.isView)) ||
                     (node.object.name && viewArgs.indexOf(node.object.name) === 0)) {
                     node.object = new Identifier('GLOBAL_NOT_REPLACED', node.object);
                     globalRefs.push(node.object);
                 } else if (!node.object.name || viewArgs.indexOf(node.object.name) !== 1) {
                     console.warn('Suspicious member looks like global '.yellow + location(node),
-                        (node.object.name || node.object.type) + '.' + node.property.name);
+                        (node.object.name || node.object.type) + '.' + property);
                 }
             }
         }

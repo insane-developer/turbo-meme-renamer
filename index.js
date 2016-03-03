@@ -50,7 +50,9 @@ function readFile(file){
         } catch(e) {
             console.log('too bad.', e.stack);
         }
-
+        if (options.warn) {
+            return;
+        }
         if (!options.write) {
             if (data !== compiled) {
                 console.log('Changes in', resolved);
