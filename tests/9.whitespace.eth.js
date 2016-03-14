@@ -150,5 +150,10 @@ new Date().time();
 (a = 5, b).map();
 // AssignmentExpression
 (a = b).map();
+
+/* operators */
+var greatIdea = think() && think() &&
+    eat() && think() &&
+    sleep() || die();
 /* end */
 // really this is the end
