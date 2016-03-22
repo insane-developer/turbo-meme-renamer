@@ -1,5 +1,4 @@
-var fs = require('fs'),
-    path = require('path'),
+var path = require('path'),
     parser = require('esprima'),
     transformer = require('./lib/transformer.js'),
     codegen = require('./lib/writer.js'),
@@ -24,7 +23,8 @@ module.exports = {
 function readFile(file){
     var resolved = path.resolve(file);
     return vowFs.read(resolved, 'utf-8').then(function prepareForTheTrick(data){
-        var ast;
+        var ast,
+            compiled;
         try {
             ast = parser.parse(data, {
                 loc: true,
