@@ -38,6 +38,10 @@ function blablable   (param, param2)  {
     return global.state;
 })(this);
 
+(function invoke() {
+    ;
+})();
+
 var x = function (param) {},
     y = function bla(param1, param2) {
     return 0 + arguments.length;
@@ -117,6 +121,9 @@ c = 2 * 5 + 3 * 2;
 d = 2 * 5 + 3;
 e = 2 + 5 * 3;
 s = 5 + 4 + 3 + 2;
+h = 'hello' + 23 + 3;
+b = 'bye' + (23 + 3);
+
 var str = 'bal' +
     'lab' + (true ? 'qwe' : 'ewq');
 //arrayExpression
