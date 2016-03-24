@@ -7,5 +7,6 @@
     "js": true,
     "now": true,
     "start": true,
-    "type": true
+    "type": true,
+    "time": true
 }
