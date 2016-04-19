@@ -8,5 +8,7 @@
     "now": true,
     "start": true,
     "type": true,
-    "time": true
+    "time": true,
+    "hover": true,
+    "weather": true
 }
