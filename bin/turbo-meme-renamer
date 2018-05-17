@@ -1,12 +1,14 @@
-#!/usr/bin/env nodejs
+#!/opt/nodejs/6/bin/node
 var meme = require('../index.js'),
     opts = require('nopt')({
         write: Boolean,
         color: Boolean,
-        argname: String,
         warn: Boolean
     }),
     files = opts.argv.remain;
-
+if (!files || !files.length) {
+    console.error('--write --color --warn ...files');
+    return process.exit(-1);
+}
 meme.configure(opts);
 meme.process(files);

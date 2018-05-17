@@ -25,6 +25,7 @@
     "escodegen": "1.6.1",
     "esprima": "^2.7.2",
     "estraverse": "^4.1.1",
+    "html-beautify": "^1.0.4",
     "nopt": "3.0.1",
     "vow": "^0.4.12",
     "vow-fs": "^0.3.4"

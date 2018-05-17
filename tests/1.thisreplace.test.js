@@ -1,46 +1,12 @@
 var ololoe = 42;
-views('wtf', function(){
-    var self = this;
-    return this.bebebe + self.lalala;
-});
+var namee = 'some-name';
+views('wtf', '<div>lala' + ololoe + 'erg' +
+    '[% wtf  %]' +
+'</div>end');
 
-views('wtf', function(){
-    var somevar = 42,
-        self = this,
-        any = this;
 
-    var evil = any,
-        angry = evil;
+views(namee, '<div>' +
+    '<span>' + namee + '</span>' +
+'</div>');
 
-    var balls,
-        steel = balls = this;
-
-    function somefunc(data, req) {
-        return data.views('dfgd') + data.Traffic;
-    }
-
-    var google = evil? this : 42;
-    return evil.bebebe + angry.lalala;
-});
-
-views('thisreplace', function(){
-    var somevar = this;
-
-    somevar = {bla: 'bla'};
-
-    function good(bla) {
-        return ble + 42;
-    }
-
-    return somevar.bla + somevar.foo;
-});
-
-views('innerfunc', function() {
-    var self = this;
-    
-    function awesome(params, that) {
-        return self.value + params.value + that.thing + this.globalvar;
-    }
-    
-    return awesome({value: 42}, this);
-});
+views('functmpl', function () {});
