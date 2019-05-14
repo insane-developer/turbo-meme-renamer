@@ -17,7 +17,9 @@ views('alalate', function alala() {});
 views('add', data => data + data);
 
 
-views('query-man', function () {});
+views('query-man', function (data, req, execView) {
+    return execView('ololoe', data);
+});
 
 views('query%man', function () {});
 

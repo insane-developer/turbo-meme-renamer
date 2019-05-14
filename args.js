@@ -102,54 +102,110 @@ function safeName(name) {
         })
         .replace(/^([^a-z_])/i, '_$1');
 }
+
+const transformer = require('./lib/transformer');
+
+const imports = [];
+function replaceExecView(ast, scope) {
+    const execViewArg = ast.params[2];
+    if (!execViewArg) {
+        return ast;
+    }
+    return transformer(ast, scope, {
+        onCallExpression: function (node, parent, scope) {
+            let func = node.callee;
+            if (func.type === 'Identifier') {
+                func = scope.getValue(func);
+            }
+            if (!func || func.type !== 'Identifier' || func.name !== execViewArg.name) {
+                return;
+            }
+            const args = node.arguments,
+                name = scope.getValue(args[0]);
+            if (name.type !== 'Literal') {
+                console.warn(`Strange execView call detected`);
+                return;
+            }
+            const ident = new Identifier(safeName(name.value));
+            imports.push(ident);
+            node.arguments[0] = ident;
+            console.log('replaced', name, ident);
+            return node;
+        }
+    });
+}
 module.exports = {
-    setFile: function (file) {
-        tmpls = [];
-        filename = file;
-    },
-    saveTmpl: function (str) {
-        tmpls.push(str);
-    },
     getTmpls: function () {
         return tmpls;
     },
+    transform: function transform(ast) {
+        return transformer(ast, null, {
+            setFile: function (file) {
+                tmpls = [];
+                filename = file;
+            },
+            saveTmpl: function (str) {
+                tmpls.push(str);
+            },
 
-    onCallExpression: function(node, parent, scope) {
-        var func = node.callee;
-        if (func.type === 'Identifier') {
-            func = scope.getValue(func);
-        }
-        if (!func || func.type !== 'Identifier' || func.name !== 'views') {
-            return;
-        }
-        var args = node.arguments,
-            name = scope.getValue(args[0]),
-            tmpl = scope.getValue(args[1]);
-        if (name.value) {
-            name = name.value;
-        }
-        console.log(`view "${name}" detected ${tmpl.type}`);
+            onCallExpression: function(node, parent, scope) {
+                var func = node.callee;
+                if (func.type === 'Identifier') {
+                    func = scope.getValue(func);
+                }
+                if (!func || func.type !== 'Identifier' || func.name !== 'views') {
+                    return;
+                }
+                var args = node.arguments,
+                    name = scope.getValue(args[0]),
+                    tmpl = scope.getValue(args[1]);
+                if (name.value) {
+                    name = name.value;
+                }
+                console.log(`view "${name}" detected ${tmpl.type}`);
 
-        if (tmpl.type === 'ArrowFunctionExpression' ||
-            tmpl.type === 'FunctionExpression' ||
-            tmpl.type === 'FunctionDeclaration') {
-            node.isDeclaration = new Export(safeName(name), tmpl, node);
-            return;
-        }
+                if (tmpl.type === 'ArrowFunctionExpression' ||
+                    tmpl.type === 'FunctionExpression' ||
+                    tmpl.type === 'FunctionDeclaration') {
+                    node.isDeclaration = new Export(safeName(name), replaceExecView(tmpl), node);
+                    return;
+                }
 
 
-        node.isViewDeclaration = true;
-        var str = `\n<!--${name}-->\n${toHtml(tmpl, scope)}\n`;
-        this.saveTmpl(str);
-    },
-    onCallExpressionLeave: function (node, parent, scope, walker) {
-        if (node.isViewDeclaration) {
-            walker.remove();
-            return;
-        }
-        if (node.isDeclaration) {
-            return node.isDeclaration;
-        }
-        return node;
+                node.isViewDeclaration = true;
+                var str = `\n<!--${name}-->\n${toHtml(tmpl, scope)}\n`;
+                this.saveTmpl(str);
+            },
+            onCallExpressionLeave: function (node, parent, scope, walker) {
+                if (node.isViewDeclaration) {
+                    walker.remove();
+                    return;
+                }
+                if (node.isDeclaration) {
+                    return node.isDeclaration;
+                }
+                return node;
+            },
+            onProgramLeave: function (node, parent, scope, walker) {
+                imports.forEach(item => {
+                    console.log('make import', item);
+                    node.body.unshift({
+                        type: 'ImportDeclaration',
+                        specifiers: [{
+                            type: 'ImportSpecifier',
+                            id: item,
+                            imported: item,
+                            local: item
+                        }],
+                        source: {
+                            type: 'Literal',
+                            value: 'somewhere',
+                            raw: "'somewhere'"
+                        }
+                    });
+                });
+                return node;
+            }
+        });
     }
 };

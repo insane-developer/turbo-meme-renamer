@@ -1,7 +1,6 @@
 /* eslint-env es6 */
 var path = require('path'),
     parser = require('esprima'),
-    transformer = require('./lib/transformer.js'),
     codegen = require('./lib/writer.js'),
     vowFs = require('vow-fs'),
     differ = require('diff'),
@@ -39,7 +38,7 @@ function readFile(file){
         }
         ast.file = resolved;
         var args = require('./args.js');
-        ast = transformer(ast, args);
+        ast = args.transform(ast);
 
         try{
             compiled = codegen.generate(ast, {
@@ -58,31 +57,32 @@ function readFile(file){
             if (args.getTmpls().length) {
                 console.log('Temaplates extracted from ', resolved);
                 console.log(args.getTmpls().join('\n').green);
-                if (data !== compiled) {
-                    console.log('Changes in', resolved);
-                    var diff = differ.diffWords(data, compiled).map(function(part) {
-                        var color = part.added ? 'green' : part.removed ? 'red' : 'white';
-                        part.value = part.value.replace(/\s/g, function(match) {
-                            var whtspcColor = color === 'white' ? 'gray' : color;
-                            switch (match) {
-                                case ' ':
-                                    return '.'[whtspcColor] + ''[color];
-                                case '\r':
-                                    return '\\r'[whtspcColor] + '\r'[color];
-                                case '\n':
-                                    return '\\n'[whtspcColor] + '\n'[color];
-                                case '\t':
-                                    return '--->'[whtspcColor] + ''[color];
-                                    default:
-                                        return match[color];
-                            }
-                        });
-                        return part.value[color];
-                    }).join('');
+            }
+            if (data !== compiled) {
+                console.log('Changes in', resolved);
+                var diff = differ.diffWords(data, compiled).map(function(part) {
+                    var color = part.added ? 'green' : part.removed ? 'red' : 'white';
+                    part.value = part.value.replace(/\s/g, function(match) {
+                        var whtspcColor = color === 'white' ? 'gray' : color;
+                        switch (match) {
+                            case ' ':
+                                return '.'[whtspcColor] + ''[color];
+                            case '\r':
+                                return '\\r'[whtspcColor] + '\r'[color];
+                            case '\n':
+                                return '\\n'[whtspcColor] + '\n'[color];
+                            case '\t':
+                                return '--->'[whtspcColor] + ''[color];
+                                default:
+                                    return match[color];
+                        }
+                    });
+                    return part.value[color];
+                }).join('');
 
-                    console.log(diff);
-                }
-            } else {
+                console.log(diff);
+            }
+            if (!args.getTmpls().length && data === compiled) {
                 console.error('No changes', resolved);
             }
         } else {
@@ -91,11 +91,11 @@ function readFile(file){
                     encoding: 'utf-8',
                     flag: 'a'
                 });
-                if (data !== compiled) {
-                    return vowFs.write(resolved, compiled, 'utf-8').then(function() {
-                        console.log('Записан:', file);
-                    });
-                }
+            }
+            if (data !== compiled) {
+                return vowFs.write(resolved, compiled, 'utf-8').then(function() {
+                    console.log('Записан:', file);
+                });
             }
             return Promise.resolve();
         }
