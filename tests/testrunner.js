@@ -1,6 +1,5 @@
 var fs = require('fs'),
     path = require('path'),
-    vow = require('vow'),
     vowFs = require('vow-fs'),
     colors = require('colors'),
     diff = require('diff'),
@@ -16,7 +15,7 @@ function run(tests) {
                 failed++;
             });
         });
-    }, vow.resolve()).then(function() {
+    }, Promise.resolve()).then(function() {
         if (!failed) {
             console.log('Tests passed'.green);
         } else {
@@ -52,7 +51,7 @@ function runTest(test) {
 }
 
 function compare(dest, ethalon, strictWhitespace) {
-    return vow.all([dest, ethalon].map(function(path) {
+    return Promise.all([dest, ethalon].map(function(path) {
         return vowFs.read(path, 'utf-8');
     })).then(function(files) {
         var equal = true, diffed = diff[strictWhitespace ? 'diffChars' : 'diffWords'](files[0], files[1]).map(function(part) {
@@ -68,8 +67,8 @@ function compare(dest, ethalon, strictWhitespace) {
                             return '\\n'.dim + '\n';
                         case '\t':
                             return '--->'.dim;
-                            default:
-                                return match;
+                        default:
+                            return match;
                     }
                 });
             }

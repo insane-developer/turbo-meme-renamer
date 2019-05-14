@@ -39,7 +39,7 @@ function readFile(file){
         }
         ast.file = resolved;
         var args = require('./args.js');
-        ast = transformer(ast, data, args);
+        ast = transformer(ast, args);
 
         try{
             compiled = codegen.generate(ast, {
